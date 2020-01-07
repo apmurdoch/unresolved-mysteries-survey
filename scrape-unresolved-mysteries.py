@@ -1,16 +1,22 @@
 import praw
 import re
-# It's here that you add your personal credentials. For what this script does, at this point in time you do not need to pass your Reddit username and password.
-reddit = praw.Reddit(user_agent='Comment Extraction (by /u/USERNAME)',
-                     client_id='CLIENT_ID', client_secret="CLIENT_SECRET",
-                     username='REDDIT_USERNAME', password='REDDIT_PASSWORD')
-# The ID for this particular submission for unresolved mysteries is 9014d6, but you can change it to whatever comment ID is on another thread
-submission = reddit.submission(id='9014d6')
+
+Submission_ID = '9014d6' 					# The ID of the thread you wish to scrape
+Reddit_Username = 'Username'				# Reddit Username
+Reddit_Password = 'Password'				# Reddit Password
+Reddit_API_ID = 'Reddit API ID'				# Reddit API Key
+Reddit_API_Secret = 'Reddit API Secret'		# Reddit API Secret
+Output_File = 'unresolved-mysteries.html'	# The name of the file you wish to output to
+
+reddit = praw.Reddit(user_agent='Comment Extraction by /u/' + Reddit_Username,
+                     client_id=Reddit_API_ID, client_secret=Reddit_API_Secret,
+                     username=Reddit_Username, password=Reddit_Password)
+submission = reddit.submission(id=Submission_ID)
 from praw.models import MoreComments
 submission.comments.replace_more(limit=None)
 toplevelcount=0
-# Below you enter where you want to save the file. Encoding in UTF-8 because sometimes there are issues with parsing these comments.
-with open('unresolved-mysteries.html', 'w', encoding='utf-8') as f:
+
+with open(Output_File, 'w', encoding='utf-8') as f:
 	# Create HTML and table. It's pretty long, but I wanted to get everything done in here without any "post-production"
 	print("""<!DOCTYPE html>
 	<html>
@@ -140,6 +146,7 @@ with open('unresolved-mysteries.html', 'w', encoding='utf-8') as f:
 		# Some people agree and disagree, usually because the top-level-poster has argued two things... we catch these as the agree/disagree counts will exceed the number of comments.
 		if (agreecount+disagreecount) > commentcount:
 			torn=True
+		# Why on earth am I ***printing*** everything? I mean, technically... fine. I'll change this another day.
 		print('<div class="card p-3" data-perc-agree="'+str(percagree)+'" data-perc-disagree="'+str(percdisagree)+'" data-comment-count="'+str(commentcount)+'"><p><blockquote class="blockquote mb-0 card-body">'+top_level_comment.body+'</p>', file=f)
 		print("""<div class="progress">
 			<div class="progress-bar bg-success" role="progressbar" style="width: """+str(percagree)+"""%" aria-valuemin="0" aria-valuemax="100"></div>
